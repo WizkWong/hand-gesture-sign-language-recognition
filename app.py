@@ -20,8 +20,8 @@ def get_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--device", type=int, default=0)
-    parser.add_argument("--width", help='cap width', type=int, default=960)
-    parser.add_argument("--height", help='cap height', type=int, default=540)
+    parser.add_argument("--width", help='cap width', type=int, default=1280)
+    parser.add_argument("--height", help='cap height', type=int, default=720)
 
     parser.add_argument('--use_static_image_mode', action='store_true')
     parser.add_argument("--min_detection_confidence",
@@ -61,7 +61,7 @@ def main():
     mp_hands = mp.solutions.hands
     hands = mp_hands.Hands(
         static_image_mode=use_static_image_mode,
-        max_num_hands=1,
+        max_num_hands=2,
         min_detection_confidence=min_detection_confidence,
         min_tracking_confidence=min_tracking_confidence,
     )
@@ -98,6 +98,11 @@ def main():
     #  ########################################################################
     mode = 0
 
+    mode_string = ['Logging Key Point', 'Logging Point History', 'Enter a Sentence', 'Sentence']
+
+    sentence_list = []
+    position = 0
+
     while True:
         fps = cvFpsCalc.get()
 
@@ -106,6 +111,12 @@ def main():
         if key == 27:  # ESC
             break
         number, mode = select_mode(key, mode)
+
+        if key == 13 and mode == 3:
+            sentence_list.clear()
+            position = 0
+
+        input_key(key, mode, sentence_list)
 
         # Camera capture #####################################################
         ret, image = cap.read()
@@ -141,7 +152,7 @@ def main():
 
                 # Hand sign classification
                 hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
-                if hand_sign_id == 2:  # Point gesture
+                if hand_sign_id == 26:  # Point gesture
                     point_history.append(landmark_list[8])
                 else:
                     point_history.append([0, 0])
@@ -168,11 +179,17 @@ def main():
                     keypoint_classifier_labels[hand_sign_id],
                     point_history_classifier_labels[most_common_fg_id[0][0]],
                 )
+
+                if mode == 4 and position < len(sentence_list) and (sentence_list[position] == keypoint_classifier_labels[hand_sign_id] or sentence_list[position] == point_history_classifier_labels[most_common_fg_id[0][0]]):
+                    position += 1
+                    if position < len(sentence_list) and sentence_list[position] == ' ':
+                        position += 1
+
         else:
             point_history.append([0, 0])
 
         debug_image = draw_point_history(debug_image, point_history)
-        debug_image = draw_info(debug_image, fps, mode, number)
+        debug_image = draw_info(debug_image, fps, mode, number, mode_string, sentence_list, position)
 
         # Screen reflection #############################################################
         cv.imshow('Hand Gesture Recognition', debug_image)
@@ -183,6 +200,12 @@ def main():
 
 def select_mode(key, mode):
     number = -1
+    if key == 13:  # enter
+        mode = 3 if mode == 4 or mode == 0 else 4
+
+    if mode == 3:
+        return number, mode
+
     if 48 <= key <= 57:  # 0 ~ 9
         number = key - 48
     if key == 110:  # n
@@ -191,7 +214,20 @@ def select_mode(key, mode):
         mode = 1
     if key == 104:  # h
         mode = 2
+
     return number, mode
+
+
+def input_key(key, mode, sentence_list):
+    if mode != 3:
+        return
+
+    if 97 <= key <= 122:
+        sentence_list.append(chr(key - 32))
+    elif key == 32:
+        sentence_list.append(' ')
+    elif key == 8 and sentence_list:
+        sentence_list.pop()
 
 
 def calc_bounding_rect(image, landmarks):
@@ -281,7 +317,7 @@ def pre_process_point_history(image, point_history):
 def logging_csv(number, mode, landmark_list, point_history_list):
     if mode == 0:
         pass
-    if mode == 1 and (0 <= number <= 9):
+    if mode == 1 and (0 <= number <= 26):
         csv_path = 'model/keypoint_classifier/keypoint.csv'
         with open(csv_path, 'a', newline="") as f:
             writer = csv.writer(f)
@@ -521,21 +557,40 @@ def draw_point_history(image, point_history):
     return image
 
 
-def draw_info(image, fps, mode, number):
+def draw_info(image, fps, mode, number, mode_string, sentence_list: list, position: int):
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
 
-    mode_string = ['Logging Key Point', 'Logging Point History']
     if 1 <= mode <= 2:
         cv.putText(image, "MODE:" + mode_string[mode - 1], (10, 90),
                    cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
                    cv.LINE_AA)
-        if 0 <= number <= 9:
+        if 0 <= number <= 26:
             cv.putText(image, "NUM:" + str(number), (10, 110),
                        cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
                        cv.LINE_AA)
+
+    if mode == 3:
+        cv.putText(image, mode_string[mode - 1], (10, 90),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                   cv.LINE_AA)
+        cv.putText(image, "".join(sentence_list), (10, 110),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                   cv.LINE_AA)
+
+    if mode == 4 and sentence_list:
+        cv.putText(image, mode_string[mode - 1], (10, 90),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                   cv.LINE_AA)
+        cv.putText(image, "".join(sentence_list), (10, 110),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                   cv.LINE_AA)
+        cv.putText(image, "".join(sentence_list[:position]), (10, 110),
+                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1,
+                   cv.LINE_AA)
+
     return image
 
 
