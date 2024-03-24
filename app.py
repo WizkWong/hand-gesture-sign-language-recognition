@@ -112,11 +112,15 @@ def main():
             break
         number, mode = select_mode(key, mode)
 
-        if key == 13 and mode == 3:
+        if key == 13 and mode == 3:  # 'enter' key in mode 3 reset sentence and position
             sentence_list.clear()
             position = 0
+        elif key == 9 and mode == 4 and position < len(sentence_list):  # 'tab' key in mode 4 to skip a letter from sentence
+            position += 1
+            if position < len(sentence_list) and sentence_list[position] == ' ':
+                position += 1
 
-        input_key(key, mode, sentence_list)
+        input_selection(key, mode, sentence_list)
 
         # Camera capture #####################################################
         ret, image = cap.read()
@@ -218,7 +222,7 @@ def select_mode(key, mode):
     return number, mode
 
 
-def input_key(key, mode, sentence_list):
+def input_selection(key, mode, sentence_list):
     if mode != 3:
         return
 
