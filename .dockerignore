@@ -1,0 +1,13 @@
+**/__pycache__
+
+.env
+.venv
+
+.gitignore
+.git
+
+.idea
+
+*.ipynb
+LICENSE
+README.md
