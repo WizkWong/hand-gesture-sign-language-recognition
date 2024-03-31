@@ -565,8 +565,8 @@ def draw_point_history(image, point_history):
 
 
 def draw_info(image, fps, mode, number, mode_string, sentence_list: list, position: int):
-    cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
-               1.0, (0, 0, 0), 4, cv.LINE_AA)
+    # cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
+    #            1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (255, 255, 255), 2, cv.LINE_AA)
 
@@ -581,21 +581,21 @@ def draw_info(image, fps, mode, number, mode_string, sentence_list: list, positi
 
     if mode == 3:
         cv.putText(image, mode_string[mode - 1], (10, 90),
-                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
                    cv.LINE_AA)
-        cv.putText(image, "".join(sentence_list), (10, 110),
-                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+        cv.putText(image, "".join(sentence_list), (10, 120),
+                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
                    cv.LINE_AA)
 
     if mode == 4 and sentence_list:
         cv.putText(image, mode_string[mode - 1], (10, 90),
-                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
                    cv.LINE_AA)
-        cv.putText(image, "".join(sentence_list), (10, 110),
-                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1,
+        cv.putText(image, "".join(sentence_list), (10, 120),
+                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
                    cv.LINE_AA)
-        cv.putText(image, "".join(sentence_list[:position]), (10, 110),
-                   cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1,
+        cv.putText(image, "".join(sentence_list[:position]), (10, 120),
+                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2,
                    cv.LINE_AA)
 
     return image
