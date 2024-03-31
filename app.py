@@ -537,6 +537,9 @@ def draw_info_text(image, brect, handedness, hand_sign_text,
                  (0, 0, 0), -1)
 
     info_text = handedness.classification[0].label[0:]
+
+    hand_sign_text = finger_gesture_text if finger_gesture_text == "Z" else hand_sign_text
+
     if hand_sign_text != "":
         info_text = info_text + ':' + hand_sign_text
     cv.putText(image, info_text, (brect[0] + 5, brect[1] - 4),
