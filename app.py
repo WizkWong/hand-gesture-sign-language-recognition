@@ -98,7 +98,7 @@ def main():
     #  ########################################################################
     mode = 0
 
-    mode_string = ['Logging Key Point', 'Logging Point History', 'Enter a Sentence', 'Sentence']
+    mode_string = ['Logging Key Point', 'Logging Point History', 'Enter your name here:', 'You may start to pose sign language:']
 
     sentence_list = []
     position = 0
@@ -581,21 +581,21 @@ def draw_info(image, fps, mode, number, mode_string, sentence_list: list, positi
 
     if mode == 3:
         cv.putText(image, mode_string[mode - 1], (10, 90),
-                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
+                   cv.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 2,
                    cv.LINE_AA)
-        cv.putText(image, "".join(sentence_list), (10, 120),
-                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
+        cv.putText(image, "".join(sentence_list), (10, 135),
+                   cv.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 2,
                    cv.LINE_AA)
 
     if mode == 4 and sentence_list:
         cv.putText(image, mode_string[mode - 1], (10, 90),
-                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
+                   cv.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 2,
                    cv.LINE_AA)
-        cv.putText(image, "".join(sentence_list), (10, 120),
-                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2,
+        cv.putText(image, "".join(sentence_list), (10, 135),
+                   cv.FONT_HERSHEY_SIMPLEX, 1.3, (255, 255, 255), 2,
                    cv.LINE_AA)
-        cv.putText(image, "".join(sentence_list[:position]), (10, 120),
-                   cv.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2,
+        cv.putText(image, "".join(sentence_list[:position]), (10, 135),
+                   cv.FONT_HERSHEY_SIMPLEX, 1.3, (0, 255, 0), 2,
                    cv.LINE_AA)
 
     return image
